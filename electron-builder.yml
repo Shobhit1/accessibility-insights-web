@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 appId: com.aimobile.app
 directories:
-    app: drop/electron/electron
+    app: drop/electron/androidCanary
 extraMetadata:
     main: product/bundle/main.bundle.js
     name: ai-mobile

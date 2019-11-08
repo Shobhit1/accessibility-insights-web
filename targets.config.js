@@ -103,13 +103,27 @@ module.exports = {
         bundleFolder: 'prodBundle',
         mustExistFile: 'background.bundle.js',
     },
-    electron: {
+    androidDev: {
         config: {
             options: {
                 ...internalOptions,
                 ...icons.dev,
                 fullName: 'Accessibility Insights for Android - Dev',
-                telemetryBuildName: 'Android',
+                telemetryBuildName: 'Android-Dev',
+                productCategory: 'electron',
+            },
+        },
+        bundleFolder: 'electronBundle',
+        mustExistFile: 'main.bundle.js',
+    },
+    androidCanary: {
+        release: true,
+        config: {
+            options: {
+                ...internalOptions,
+                ...icons.canary,
+                fullName: 'Accessibility Insights for Android - Canary',
+                telemetryBuildName: 'Android-Canary',
                 productCategory: 'electron',
             },
         },
