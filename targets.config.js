@@ -120,7 +120,7 @@ module.exports = {
             mustExistFile: 'main.bundle.js',
         },
         canary: {
-            release: false,
+            release: true,
             config: {
                 options: {
                     ...internalOptions,

@@ -8,3 +8,4 @@ steps:
           targets: update-config
           arguments: --extension-version=$(extension-version) --app-insights-instrumentation-key=$(app-insights-instrumentation-key)
           gruntCli: node_modules/grunt-cli/bin/grunt
+      condition: and(always(), eq(variables['target'], 'canary'))
