@@ -15,6 +15,14 @@ module.exports = function(grunt) {
         }
     }
 
+    grunt.loadNpmTasks('grunt-bom-removal');
+    grunt.loadNpmTasks('grunt-concurrent');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-exec');
+    grunt.loadNpmTasks('grunt-sass');
+
     grunt.initConfig({
         bom: {
             cwd: path.resolve('./src/**/*.{ts,tsx,js,snap,html,scss,css}'),
@@ -130,15 +138,15 @@ module.exports = function(grunt) {
         watch: {
             images: {
                 files: ['src/**/*.png'],
-                tasks: ['copy:images', 'drop:dev', 'drop:androidDev'],
+                tasks: ['copy:images', 'drop:dev', 'drop:electron-dev'],
             },
             'non-webpack-code': {
                 files: ['src/**/*.html', 'src/manifest.json'],
-                tasks: ['copy:code', 'drop:dev', 'drop:androidDev'],
+                tasks: ['copy:code', 'drop:dev', 'drop:electron-dev'],
             },
             scss: {
                 files: ['src/**/*.scss'],
-                tasks: ['sass', 'copy:styles', 'drop:dev', 'drop:androidDev'],
+                tasks: ['sass', 'copy:styles', 'drop:dev', 'drop:electron-dev'],
             },
             // We assume webpack --watch is running separately (usually via 'yarn watch')
             'webpack-dev-output': {
@@ -151,92 +159,96 @@ module.exports = function(grunt) {
         },
     });
 
-    const targetNames = Object.keys(targets);
-    const releaseTargets = Object.keys(targets).filter(t => targets[t].release);
-    targetNames.forEach(targetName => {
-        const { config, bundleFolder } = targets[targetName];
+    const productCategoryNames = Object.keys(targets);
+    let releaseTargets = [];
 
-        const { productCategory } = config.options;
+    productCategoryNames.forEach(productCategory => {
+        const targetProductCategory = targets[productCategory];
+        const targetsInternalNames = Object.keys(targetProductCategory);
+        releaseTargets = targetsInternalNames.filter(t => targets[productCategory][t].release);
+        targetsInternalNames.forEach(targetName => {
+            const { config, bundleFolder } = targetProductCategory[targetName];
 
-        const dropPath = path.join(`drop/${productCategory}`, targetName);
-        const dropExtensionPath = path.join(dropPath, 'product');
+            const { productCategory } = config.options;
 
-        grunt.config.merge({
-            drop: {
-                [targetName]: {
-                    // empty on purpose
+            const dropPath = path.join(`drop/${productCategory}`, targetName);
+            const dropExtensionPath = path.join(dropPath, 'product');
+
+            grunt.config.merge({
+                drop: {
+                    [productCategory]: {
+                        [targetName]: {
+                            // empty on purpose
+                        },
+                    },
                 },
-            },
-            configure: {
-                [targetName]: {
-                    configJSPath: path.join(dropExtensionPath, 'insights.config.js'),
-                    configJSONPath: path.join(dropExtensionPath, 'insights.config.json'),
-                    config,
+                configure: {
+                    [targetName]: {
+                        configJSPath: path.join(dropExtensionPath, 'insights.config.js'),
+                        configJSONPath: path.join(dropExtensionPath, 'insights.config.json'),
+                        config,
+                    },
                 },
-            },
-            manifest: {
-                [targetName]: {
-                    manifestSrc: path.join('src', 'manifest.json'),
-                    manifestDest: path.join(dropExtensionPath, 'manifest.json'),
-                    config,
+                manifest: {
+                    [targetName]: {
+                        manifestSrc: path.join('src', 'manifest.json'),
+                        manifestDest: path.join(dropExtensionPath, 'manifest.json'),
+                        config,
+                    },
                 },
-            },
-            clean: {
-                [targetName]: dropPath,
-                scss: path.join('src', '**/*.scss.d.ts'),
-            },
-            'embed-styles': {
-                [targetName]: {
-                    cwd: path.resolve(extensionPath, bundleFolder),
-                    src: '**/*bundle.js',
-                    dest: path.resolve(extensionPath, bundleFolder),
-                    expand: true,
+                clean: {
+                    [targetName]: dropPath,
+                    scss: path.join('src', '**/*.scss.d.ts'),
                 },
-            },
-            copy: {
-                [targetName]: {
-                    files: [
-                        {
+                'embed-styles': {
+                    [productCategory]: {
+                        [targetName]: {
                             cwd: path.resolve(extensionPath, bundleFolder),
-                            src: ['*.js', '*.js.map', '*.css'],
-                            dest: path.resolve(dropExtensionPath, 'bundle'),
+                            src: '**/*bundle.js',
+                            dest: path.resolve(extensionPath, bundleFolder),
                             expand: true,
                         },
-                        {
-                            cwd: extensionPath,
-                            src: ['**/*.png', '**/*.css', '**/*.woff'],
-                            dest: dropExtensionPath,
-                            expand: true,
-                        },
-                        {
-                            cwd: 'deploy',
-                            src: ['Gruntfile.js', 'package.json'],
-                            dest: dropPath,
-                            expand: true,
-                        },
-                        {
-                            cwd: extensionPath,
-                            src: ['**/*.html'],
-                            dest: dropExtensionPath,
-                            expand: true,
-                        },
-                    ],
+                    },
                 },
-            },
+                copy: {
+                    [targetName]: {
+                        files: [
+                            {
+                                cwd: path.resolve(extensionPath, bundleFolder),
+                                src: ['*.js', '*.js.map', '*.css'],
+                                dest: path.resolve(dropExtensionPath, 'bundle'),
+                                expand: true,
+                            },
+                            {
+                                cwd: extensionPath,
+                                src: ['**/*.png', '**/*.css', '**/*.woff'],
+                                dest: dropExtensionPath,
+                                expand: true,
+                            },
+                            {
+                                cwd: 'deploy',
+                                src: ['Gruntfile.js', 'package.json'],
+                                dest: dropPath,
+                                expand: true,
+                            },
+                            {
+                                cwd: extensionPath,
+                                src: ['**/*.html'],
+                                dest: dropExtensionPath,
+                                expand: true,
+                            },
+                        ],
+                    },
+                },
+            });
         });
     });
 
-    grunt.loadNpmTasks('grunt-bom-removal');
-    grunt.loadNpmTasks('grunt-concurrent');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-exec');
-    grunt.loadNpmTasks('grunt-sass');
+    grunt.registerMultiTask('embed-styles', function(arg1) {
+        const targetName = arg1;
+        const product = this.target;
 
-    grunt.registerMultiTask('embed-styles', function() {
-        const targetName = this.target;
-        const { bundleFolder } = targets[targetName];
+        const { bundleFolder } = targets[product][targetName];
         this.files.forEach(file => {
             const {
                 src: [src],
@@ -288,9 +300,12 @@ module.exports = function(grunt) {
         grunt.file.write(manifestDest, JSON.stringify(manifestJSON, undefined, 2));
     });
 
-    grunt.registerMultiTask('drop', function() {
-        const targetName = this.target;
-        const { bundleFolder, mustExistFile, config } = targets[targetName];
+    grunt.registerMultiTask('drop', function(arg1, arg2) {
+        console.log('--------', this.target, arg1, this.data);
+        const product = this.target;
+        const targetName = arg1;
+
+        const { bundleFolder, mustExistFile, config } = targets[product][targetName];
 
         const { productCategory } = config.options;
 
@@ -301,7 +316,7 @@ module.exports = function(grunt) {
 
         mustExist(mustExistPath, 'Have you run webpack?');
 
-        grunt.task.run('embed-styles:' + targetName);
+        grunt.task.run(`embed-styles:${product}:${targetName}`);
         grunt.task.run('clean:' + targetName);
         grunt.task.run('copy:' + targetName);
         grunt.task.run('configure:' + targetName);
@@ -311,35 +326,41 @@ module.exports = function(grunt) {
 
     grunt.registerTask('release-drops', function() {
         releaseTargets.forEach(targetName => {
-            grunt.task.run('drop:' + targetName);
+            grunt.task.run('drop:' + `extension:${targetName}`);
         });
     });
 
     grunt.registerTask('build-assets', ['sass', 'copy:code', 'copy:styles', 'copy:images']);
 
     // Main entry points for npm scripts:
-    grunt.registerTask('build-dev', ['clean:intermediates', 'exec:generate-scss-typings', 'exec:webpack-dev', 'build-assets', 'drop:dev']);
+    grunt.registerTask('build-dev', [
+        'clean:intermediates',
+        'exec:generate-scss-typings',
+        'exec:webpack-dev',
+        'build-assets',
+        'drop:extension:dev',
+    ]);
     grunt.registerTask('build-prod', [
         'clean:intermediates',
         'exec:generate-scss-typings',
         'exec:webpack-prod',
         'build-assets',
-        'drop:production',
+        'drop:extension:production',
     ]);
     grunt.registerTask('build-electron', [
         'clean:intermediates',
         'exec:generate-scss-typings',
         'exec:webpack-electron',
         'build-assets',
-        'drop:androidDev',
+        'drop:electron:dev',
     ]);
     grunt.registerTask('build-all', [
         'clean:intermediates',
         'exec:generate-scss-typings',
         'concurrent:webpack-all',
         'build-assets',
-        'drop:dev',
-        'drop:androidDev',
+        'drop:extension:dev',
+        'drop:electron:dev',
         'release-drops',
     ]);
 

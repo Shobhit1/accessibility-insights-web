@@ -35,99 +35,103 @@ const internalOptions = {
 };
 
 module.exports = {
-    dev: {
-        config: {
-            options: {
-                ...internalOptions,
-                ...icons.dev,
-                fullName: 'Accessibility Insights for Web - Dev',
-                telemetryBuildName: 'Dev',
-                productCategory: 'extension',
+    extension: {
+        dev: {
+            config: {
+                options: {
+                    ...internalOptions,
+                    ...icons.dev,
+                    fullName: 'Accessibility Insights for Web - Dev',
+                    telemetryBuildName: 'Dev',
+                    productCategory: 'extension',
+                },
             },
+            bundleFolder: 'devBundle',
+            mustExistFile: 'background.bundle.js',
         },
-        bundleFolder: 'devBundle',
-        mustExistFile: 'background.bundle.js',
+        playground: {
+            release: true,
+            config: {
+                options: {
+                    ...publicOptions,
+                    ...icons.playground,
+                    fullName: 'Accessibility Insights for Web - Playground',
+                    telemetryBuildName: 'Playground',
+                    productCategory: 'extension',
+                },
+            },
+            bundleFolder: 'devBundle',
+            mustExistFile: 'background.bundle.js',
+        },
+        canary: {
+            release: true,
+            config: {
+                options: {
+                    ...internalOptions,
+                    ...icons.canary,
+                    fullName: 'Accessibility Insights for Web - Canary',
+                    telemetryBuildName: 'Canary',
+                    productCategory: 'extension',
+                },
+            },
+            bundleFolder: 'devBundle',
+            mustExistFile: 'background.bundle.js',
+        },
+        insider: {
+            release: true,
+            config: {
+                options: {
+                    ...internalOptions,
+                    ...icons.insider,
+                    fullName: 'Accessibility Insights for Web - Insider',
+                    telemetryBuildName: 'Insider',
+                    productCategory: 'extension',
+                },
+            },
+            bundleFolder: 'prodBundle',
+            mustExistFile: 'background.bundle.js',
+        },
+        production: {
+            release: true,
+            config: {
+                options: {
+                    ...internalOptions,
+                    ...icons.production,
+                    telemetryBuildName: 'Production',
+                    productCategory: 'extension',
+                },
+            },
+            bundleFolder: 'prodBundle',
+            mustExistFile: 'background.bundle.js',
+        },
     },
-    playground: {
-        release: true,
-        config: {
-            options: {
-                ...publicOptions,
-                ...icons.playground,
-                fullName: 'Accessibility Insights for Web - Playground',
-                telemetryBuildName: 'Playground',
-                productCategory: 'extension',
+    electron: {
+        dev: {
+            config: {
+                options: {
+                    ...internalOptions,
+                    ...icons.dev,
+                    fullName: 'Accessibility Insights for Android - Dev',
+                    telemetryBuildName: 'Android-Dev',
+                    productCategory: 'electron',
+                },
             },
+            bundleFolder: 'electronBundle',
+            mustExistFile: 'main.bundle.js',
         },
-        bundleFolder: 'devBundle',
-        mustExistFile: 'background.bundle.js',
-    },
-    canary: {
-        release: true,
-        config: {
-            options: {
-                ...internalOptions,
-                ...icons.canary,
-                fullName: 'Accessibility Insights for Web - Canary',
-                telemetryBuildName: 'Canary',
-                productCategory: 'extension',
+        canary: {
+            release: false,
+            config: {
+                options: {
+                    ...internalOptions,
+                    ...icons.canary,
+                    fullName: 'Accessibility Insights for Android - Canary',
+                    telemetryBuildName: 'Android-Canary',
+                    productCategory: 'electron',
+                },
             },
+            bundleFolder: 'electronBundle',
+            mustExistFile: 'main.bundle.js',
         },
-        bundleFolder: 'devBundle',
-        mustExistFile: 'background.bundle.js',
-    },
-    insider: {
-        release: true,
-        config: {
-            options: {
-                ...internalOptions,
-                ...icons.insider,
-                fullName: 'Accessibility Insights for Web - Insider',
-                telemetryBuildName: 'Insider',
-                productCategory: 'extension',
-            },
-        },
-        bundleFolder: 'prodBundle',
-        mustExistFile: 'background.bundle.js',
-    },
-    production: {
-        release: true,
-        config: {
-            options: {
-                ...internalOptions,
-                ...icons.production,
-                telemetryBuildName: 'Production',
-                productCategory: 'extension',
-            },
-        },
-        bundleFolder: 'prodBundle',
-        mustExistFile: 'background.bundle.js',
-    },
-    androidDev: {
-        config: {
-            options: {
-                ...internalOptions,
-                ...icons.dev,
-                fullName: 'Accessibility Insights for Android - Dev',
-                telemetryBuildName: 'Android-Dev',
-                productCategory: 'electron',
-            },
-        },
-        bundleFolder: 'electronBundle',
-        mustExistFile: 'main.bundle.js',
-    },
-    androidCanary: {
-        release: true,
-        config: {
-            options: {
-                ...internalOptions,
-                ...icons.canary,
-                fullName: 'Accessibility Insights for Android - Canary',
-                telemetryBuildName: 'Android-Canary',
-                productCategory: 'electron',
-            },
-        },
-        bundleFolder: 'electronBundle',
-        mustExistFile: 'main.bundle.js',
     },
 };
